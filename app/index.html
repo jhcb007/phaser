@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8"/>
+    <title>hello phaser!</title>
+    <script src="../js/phaser.min.js"></script>
+    <script type="text/javascript">
+        var game = new Phaser.Game(800, 600, Phaser.AUTO, '', {
+            preload: preload,
+            create: create,
+            update: update,
+            render: render
+        });
+
+        function preload() {
+            game.load.image('sky', '../images/BG.png');
+            game.load.image('ground', '../images/platform.png');
+            game.load.image('star', '../images/star.png');
+            game.load.spritesheet('dude', '../images/dude.png', 32, 48);
+            game.load.image('plat1', '../images/1.png');
+            game.load.image('plat2', '../images/2.png');
+            game.load.image('plat3', '../images/3.png');
+            game.load.image('plat13', '../images/13.png');
+            game.load.image('plat14', '../images/14.png');
+            game.load.image('plat15', '../images/15.png');
+            game.load.image('river1', '../images/17.png');
+            game.load.image('river2', '../images/18.png');
+            game.load.image('tree2', '../images/tree_2.png');
+            game.load.image('crate', '../images/crate.png');
+        }
+
+        var player;
+        var platforms;
+        var cursors;
+        var style;
+        var river;
+
+        function create() {
+            game.world.resize(1000, 600);
+
+            game.physics.startSystem(Phaser.Physics.ARCADE);
+            for (i = 0; i < 90; i++) {
+                game.add.sprite(i * 10000, 0, 'sky');
+            }
+
+            platforms = game.add.group();
+            platforms.enableBody = true;
+            for (i = 0; i < 10; i++) {
+                var ground = platforms.create(i * 128, game.world.height - 64, 'plat2');
+                ground.body.immovable = true;
+            }
+
+            river = game.add.group();
+            river.enableBody = true;
+            for (i = 0; i < 3; i++) {
+                var r = river.create(1280 + i * 64, game.world.height - 64, 'river1');
+                var r2 = river.create(1280 + i * 32, game.world.height - 15, 'river2');
+                r.body.immovable = true;
+                r.scale.setTo(0.5, 0.5);
+            }
+
+            for (i = 0; i < 10; i++) {
+                var ground = platforms.create(1472 + i * 128, game.world.height - 64, 'plat2');
+                ground.body.immovable = true;
+            }
+
+            var ledge = platforms.create(400, 450, 'plat13');
+            ledge.scale.setTo(0.3, 0.3);
+            ledge.body.immovable = true;
+
+            for (i = 0; i < 7; i++) {
+                ledge = platforms.create(435 + i * 35, 450, 'plat14');
+                ledge.scale.setTo(0.3, 0.3);
+                ledge.body.immovable = true;
+            }
+
+            ledge = platforms.create(680, 450, 'plat15');
+            ledge.scale.setTo(0.3, 0.3);
+            ledge.body.immovable = true;
+
+            var tree = platforms.create(800, 250, 'tree2');
+            tree.scale.setTo(1, 1);
+            tree.body.immovable = true;
+
+            var crate = platforms.create(700, 350, 'crate');
+            crate.scale.setTo(0.5, 0.5);
+            crate.body.immovable = true;
+
+            // adicionando o player
+            player = game.add.sprite(32, game.world.height - 150, 'dude');
+            game.physics.arcade.enable(player);
+            player.body.bounce.y = 0.2;
+            player.body.gravity.y = 500;
+            player.body.collideWorldBounds = true;
+            player.animations.add('left', [0, 1, 2, 3], 10, true);
+            player.animations.add('right', [5, 6, 7, 8], 10, true);
+
+            cursors = game.input.keyboard.createCursorKeys();
+
+            game.camera.follow(player, Phaser.Camera.FOLLOW_LOCKON, 0.1, 0);
+
+            game.world.setBounds(0, 0, 19200, 1200);
+
+        }
+
+        function update() {
+            var hitPlatform = game.physics.arcade.collide(player, platforms);
+
+            player.body.velocity.x = 0;
+            if (cursors.left.isDown) {
+                player.body.velocity.x = -150;
+                player.animations.play('left');
+            }
+            else if (cursors.right.isDown) {
+                player.body.velocity.x = 150;
+                player.animations.play('right');
+            }
+            else {
+                player.animations.stop();
+                player.frame = 4;
+            }
+
+            if (cursors.up.isDown && player.body.touching.down && hitPlatform) {
+                player.body.velocity.y = -350;
+            }
+
+        }
+
+
+        function resetSprite(sprite) {
+            sprite.x = game.world.bounds.right;
+        }
+
+        function render() {
+
+            //game.debug.cameraInfo(game.camera, 32, 32);
+            //game.debug.spriteCoords(player, 32, 500);
+            //game.debug.text('Current style: ' + style, 150, 150);
+
+        }
+    </script>
+</head>
+
+<body>
+</body>
+
+</html>
